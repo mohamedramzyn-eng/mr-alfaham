@@ -4,8 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MR-عالفحم - نظام إدارة الموظفين</title>
-    <link rel="icon" id="favicon" href="">
-    <link rel="apple-touch-icon" id="appleIcon" href="">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#FBBF24">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="عالفحم MR">
+    <link rel="icon" id="favicon" href="icon-192.png">
+    <link rel="apple-touch-icon" id="appleIcon" href="icon-192.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Poppins:wght@700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
@@ -741,6 +747,11 @@
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="darkModeIcon"><path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/></svg>
                 </span>
             </button>
+            <button class="icon-label-btn" id="gmDashboardBtn" title="لوحة المدير العام" style="display:none;">
+                <span class="icon-label-circle">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/></svg>
+                </span>
+            </button>
             <button class="icon-label-btn" id="settingsBtn" title="الإعدادات">
                 <span class="icon-label-circle">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -857,6 +868,13 @@
         <div class="modal" id="settingsModalBody"></div>
     </div>
 
+    <div class="modal-overlay" id="gmDashboardModal">
+        <div class="modal" id="gmDashboardModalBody"></div>
+    </div>
+    <div class="modal-overlay" id="gmQuickActionsModal">
+        <div class="modal" id="gmQuickActionsModalBody"></div>
+    </div>
+
     <div class="modal-overlay" id="attendanceReportModal">
         <div class="modal" id="attendanceReportModalBody"></div>
     </div>
@@ -928,6 +946,9 @@
 
     <div class="modal-overlay" id="rolePermissionsModal">
         <div class="modal" id="rolePermissionsModalBody"></div>
+    </div>
+    <div class="modal-overlay" id="jobCustomModal">
+        <div class="modal" id="jobCustomModalBody"></div>
     </div>
 
     <div class="modal-overlay" id="accountPermModal">
@@ -1096,7 +1117,7 @@
         let lastSentSnapshotStr = null;
         let cloudSaveTimer = null;
         const CLOUD_SAVE_DEBOUNCE_MS = 500;
-        const CLOUD_TOP_LEVEL_KEYS = ['rate','logoDataUrl','roster','accounts','cleaningTasks','cleaningTaskDefs','openShiftTasks','openShiftTaskDefs','openShiftSections','lastShiftTasks','lastShiftTaskDefs','lastShiftSections','telegramBotToken','telegramChatId','maintenanceReports','maintenanceTaskDefs','maintenanceLog','reminders','notifSettings','shiftTimes','archivedMonths','lateGraceMinutes','timeEditLog','rolePermOverrides','employeeTasks','employeeNotes','messageTemplates'];
+        const CLOUD_TOP_LEVEL_KEYS = ['rate','logoDataUrl','roster','accounts','cleaningTasks','cleaningTaskDefs','openShiftTasks','openShiftTaskDefs','openShiftSections','lastShiftTasks','lastShiftTaskDefs','lastShiftSections','telegramBotToken','telegramChatId','maintenanceReports','maintenanceTaskDefs','maintenanceLog','reminders','notifSettings','shiftTimes','archivedMonths','lateGraceMinutes','timeEditLog','rolePermOverrides','employeeTasks','employeeNotes','messageTemplates','jobRoles'];
 
         /* آخر نسخة معروفة من قاعدة البيانات السحابية (بعد التطبيع)، بنقارن
            عليها عشان نعرف بالظبط إيه اللي اتغيّر فعلًا قبل ما نبعت أي حاجة. */
@@ -1162,7 +1183,8 @@
                     messageTemplates: state.messageTemplates,
                     lateGraceMinutes: state.lateGraceMinutes,
                     timeEditLog: state.timeEditLog,
-                    rolePermOverrides: state.rolePermOverrides
+                    rolePermOverrides: state.rolePermOverrides,
+                    jobRoles: state.jobRoles
                 };
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
                 latestPendingPayload = payload;
@@ -1295,7 +1317,8 @@
                     messageTemplates: state.messageTemplates,
                     lateGraceMinutes: state.lateGraceMinutes,
                     timeEditLog: state.timeEditLog,
-                    rolePermOverrides: state.rolePermOverrides
+                    rolePermOverrides: state.rolePermOverrides,
+                    jobRoles: state.jobRoles
                 };
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
                 if(cloudSaveTimer){ clearTimeout(cloudSaveTimer); cloudSaveTimer=null; }
@@ -1350,6 +1373,7 @@
                 state.lateGraceMinutes = (data.lateGraceMinutes===undefined || data.lateGraceMinutes===null) ? 20 : Number(data.lateGraceMinutes);
                 state.timeEditLog = data.timeEditLog || [];
                 state.rolePermOverrides = data.rolePermOverrides || {};
+                state.jobRoles = data.jobRoles || [];
                 healLegacyBreaksData();
                 seedDefaultTaskSectionsIfEmpty();
                 return true;
@@ -1860,15 +1884,31 @@
         const SHIFT_LABELS = {open:'وردية أوبن', between:'وردية بتوين', last:'وردية لاست'};
         const STATUS_LABELS = {present:'حاضر', leave:'إجازة', absent:'غياب'};
         const STATUS_ORDER = ['present','leave','absent'];
-        const ROLE_LABELS = {
+        /* القيم الافتراضية الأصلية للوظائف — بتُستخدم مرة واحدة بس كبذرة
+           (seed) لبناء state.jobRoles أول مرة لأي حساب لسه مفيهوش وظائف
+           متخزّنة (migrateJobRolesIfNeeded). بعد كده المصدر الحقيقي الوحيد
+           بيبقى state.jobRoles نفسه، القابل للتعديل من لوحة "تخصيص الوظائف
+           والتقييمات" في الإعدادات — الثوابت دي متتلمسش تاني بعد كده. */
+        const DEFAULT_ROLE_LABELS = {
             manager:'مدير', supervisor:'مشرف', control:'كنترول', laqem:'لقم',
-            qalaya:'قلاية', butagaz:'بوتجاز', shawaya:'شواية', grill:'جريل', steward:'استيور',
-            cashier:'كاشير', picker:'بيكب', waiter:'ويتر', headwaiter:'رئيس ويترية', floorsupervisor:'مشرف صالة'
+            qalaya:'قلاية', butagaz:'بوتجاز', shawaya:'شواية', grill:'جريل',
+            restaurantManager:'مدير المطعم', floorsupervisor:'سوبر فايزر',
+            headwaiter:'هيد ويتر', waiter:'ويتر',
+            headcashier:'هيد كاشير', cashier:'كاشير',
+            headpicker:'هيد بيك أب', picker:'بيك أب',
+            steward:'استيور'
         };
         /* الوظائف اللي بتتبع قسم "الصالة" (مقابل باقي الوظائف اللي بتتبع
            المطبخ أو الإدارة). بتُستخدم في حد البريك (60 د للصالة) وفي
            فلترة الحسابات المقيّدة بقسم. */
-        const HALL_ROLES = ['cashier','picker','waiter','headwaiter','floorsupervisor'];
+        const DEFAULT_HALL_ROLE_KEYS = ['restaurantManager','floorsupervisor','headwaiter','waiter','headcashier','cashier','headpicker','picker','steward'];
+        /* ROLE_LABELS و HALL_ROLES بقوا قيم ديناميكية (let) بتتبنى من
+           state.jobRoles عن طريق rebuildJobDerivedData() بدل ما يكونوا
+           ثوابت — عشان باقي الكود اللي بيستخدمهم في عشرات الأماكن
+           (ROLE_LABELS[role]، HALL_ROLES.includes(role)) يفضل شغال زي ما
+           هو من غير أي تعديل، بس بقيمة قابلة للتخصيص دلوقتي. */
+        let ROLE_LABELS = {};
+        let HALL_ROLES = [];
         const AVATAR_COLORS = ['#F59E0B','#3B82F6','#8B5CF6','#22C55E','#EF4444','#0EA5E9','#EC4899'];
 
         let state = {
@@ -1921,7 +1961,11 @@
             lateGraceMinutes: 20,
             /* سجل تعديلات المشرفين اليدوية على وقت الحضور/الانصراف/البريك — للمدير
                ونائب المدير بس، عشان مسائلة ومراجعة أي تلاعب في الأوقات. */
-            timeEditLog: []
+            timeEditLog: [],
+            /* تعريفات الوظائف (صالة/مطبخ) ومعايير تقييم كل وظيفة — قابلة
+               للتخصيص بالكامل من لوحة "تخصيص الوظائف والتقييمات". انظر
+               migrateJobRolesIfNeeded / rebuildJobDerivedData فوق. */
+            jobRoles: []
         };
 
         /* ============================================================
@@ -1942,6 +1986,9 @@
         let ratingsDetailMonth = ''; // 'YYYY-MM'
         let ratingsDetailDay = '';   // 'YYYY-MM-DD'
         let ratingModalReturnTo = null; // 'overview' | null
+        /* شاشة تخصيص الوظائف ومعايير التقييم */
+        let jobCustomView = 'list'; // 'list' | 'criteria'
+        let jobCustomEditingKey = null; // مفتاح الوظيفة المفتوحة في شاشة المعايير
 
         /* ============================================================
            PRESENCE (من فاتح التطبيق دلوقتي)
@@ -2253,6 +2300,8 @@
             if(fab) fab.style.display = p.canAddEmployee ? 'flex' : 'none';
             const settingsBtn = document.getElementById('settingsBtn');
             if(settingsBtn) settingsBtn.style.display = p.level==='employee' ? 'none' : '';
+            const gmBtn = document.getElementById('gmDashboardBtn');
+            if(gmBtn) gmBtn.style.display = (currentUser && !currentUser.department && p.level!=='employee') ? '' : 'none';
             const pill = document.getElementById('userPill');
             if(pill && currentUser){
                 pill.innerHTML = `<span style="font-size:11.5px;font-weight:800;">${currentUser.name}</span><span class="role-badge ${currentUser.level}">${ROLE_LABELS_ACCESS[currentUser.level]}</span>`;
@@ -2385,52 +2434,66 @@
         ];
 
         /* معايير تقييم مختلفة لكل وظيفة من وظائف الصالة الخمسة — كل وظيفة
-           ليها 6 معايير خاصة بيها بدل المعايير العامة (RATING_CATEGORIES)
-           اللي بتفضل مستخدمة لموظفي المطبخ والإدارة زي ما هي. */
-        const ROLE_RATING_CATEGORIES = {
-            cashier: [
-                {key:'checkoutSpeed', label:'سرعة التسجيل'},
-                {key:'orderConfirm', label:'تأكيد الطلب'},
-                {key:'upselling', label:'البيع المقترح'},
-                {key:'cashAccuracy', label:'دقة الدرج'},
-                {key:'menuKnowledge', label:'معرفة المنيو'},
-                {key:'friendlyGreeting', label:'الاستقبال المبتسم'}
+           ليها 5 معايير خاصة بيها بدل المعايير العامة (RATING_CATEGORIES)
+           اللي بتفضل مستخدمة لموظفي المطبخ والإدارة زي ما هي. القيم دي
+           بقت مجرد "بذرة" افتراضية لأول تشغيل — بعد كده بنود كل وظيفة
+           بتتقرا من state.jobRoles وقابلة للتعديل بالكامل. */
+        /* مجموعات معايير التقييم — كل وظيفتين متقاربتين (هيد/عادي) بياخدوا
+           نفس الـ5 بنود، والاستيور ليه مجموعته الخاصة. */
+        const DEFAULT_HALL_RATING_SETS = {
+            management: [
+                {key:'generalAppearance', label:'المظهر العام'},
+                {key:'teamGuidance', label:'توجيه الفريق'},
+                {key:'problemSolving', label:'حل المشكلات'},
+                {key:'operationSpeed', label:'سرعة التشغيل'},
+                {key:'cleanlinessFollowup', label:'متابعة النظافة'}
             ],
-            picker: [
-                {key:'invoiceMatch', label:'مطابقة الفاتورة'},
-                {key:'specialRequests', label:'تعديلات الزبون'},
-                {key:'condimentsComplete', label:'تكميل الملحقات'},
-                {key:'packagingQuality', label:'إحكام التغليف'},
-                {key:'qualityCheck', label:'فحص الجودة'},
-                {key:'clearCalling', label:'النداء الواضح'}
+            waiterSet: [
+                {key:'personalAppearance', label:'المظهر الشخصي'},
+                {key:'customerWelcome', label:'استقبال العميل'},
+                {key:'serviceSpeed', label:'سرعة الخدمة'},
+                {key:'complaintHandling', label:'معالجة الشكاوى'},
+                {key:'cleanlinessCommitment', label:'الالتزام بالنظافة'}
             ],
-            waiter: [
-                {key:'tableSetup', label:'تجهيز الطاولات'},
-                {key:'surfaceCleaning', label:'تطهير الأسطح'},
-                {key:'floorCleanliness', label:'نظافة الأرضيات'},
-                {key:'stationStocking', label:'تزويد المحطات'},
-                {key:'trashEmptying', label:'تفريغ القمامة'},
-                {key:'customerHelp', label:'مساعدة الزبائن'}
+            cashierSet: [
+                {key:'billingSpeed', label:'سرعة الحساب'},
+                {key:'financialAccuracy', label:'الدقة المالية'},
+                {key:'politeHandling', label:'التعامل اللبق'},
+                {key:'cashClosing', label:'إغلاق الكاش'},
+                {key:'personalDiscipline', label:'الانضباط الشخصي'}
             ],
-            headwaiter: [
-                {key:'stationAssignment', label:'توزيع الأماكن'},
-                {key:'realtimeDirection', label:'التوجيه اللحظي'},
-                {key:'complaintResolution', label:'حل الشكاوى'},
-                {key:'floorCoverage', label:'تغطية الصالة'},
-                {key:'tableTurnSpeed', label:'سرعة الدوران'},
-                {key:'pickupFollowup', label:'متابعة البيكب'}
+            pickupSet: [
+                {key:'deliverySpeed', label:'سرعة التسليم'},
+                {key:'orderAccuracy', label:'دقة الطلب'},
+                {key:'properPackaging', label:'التغليف السليم'},
+                {key:'goodCommunication', label:'التواصل الجيد'},
+                {key:'stationAppearance', label:'مظهر المحطة'}
             ],
-            floorsupervisor: [
-                {key:'shiftManagement', label:'إدارة الشفت'},
-                {key:'sosControl', label:'ضبط السرعة'},
-                {key:'sectionCoordination', label:'تنسيق الأقسام'},
-                {key:'wasteReduction', label:'تقليل الهدر'},
-                {key:'foodSafety', label:'سلامة الغذاء'},
-                {key:'salesFollowup', label:'متابعة المبيعات'}
+            stewardSet: [
+                {key:'floorCleanliness2', label:'نظافة الصالة'},
+                {key:'clearingSpeed', label:'سرعة الإخلاء'},
+                {key:'responseSpeed', label:'سرعة الاستجابة'},
+                {key:'uniformCommitment', label:'الالتزام بالزي'},
+                {key:'toolsOrganization', label:'ترتيب الأدوات'}
             ]
         };
-        /* كل معايير التقييم مجمّعة (للتصدير — عمود لكل معيار من كل الوظائف) */
-        const ALL_RATING_CATEGORIES = [...RATING_CATEGORIES, ...Object.values(ROLE_RATING_CATEGORIES).flat()];
+        const DEFAULT_ROLE_RATING_CATEGORIES = {
+            restaurantManager: DEFAULT_HALL_RATING_SETS.management,
+            floorsupervisor: DEFAULT_HALL_RATING_SETS.management,
+            headwaiter: DEFAULT_HALL_RATING_SETS.waiterSet,
+            waiter: DEFAULT_HALL_RATING_SETS.waiterSet,
+            headcashier: DEFAULT_HALL_RATING_SETS.cashierSet,
+            cashier: DEFAULT_HALL_RATING_SETS.cashierSet,
+            headpicker: DEFAULT_HALL_RATING_SETS.pickupSet,
+            picker: DEFAULT_HALL_RATING_SETS.pickupSet,
+            steward: DEFAULT_HALL_RATING_SETS.stewardSet
+        };
+        /* دول كمان بقوا ديناميكيين، مبنيين من state.jobRoles عن طريق
+           rebuildJobDerivedData(). */
+        let ROLE_RATING_CATEGORIES = {};
+        /* كل معايير التقييم مجمّعة (للتصدير — عمود لكل معيار مختلف من كل
+           الوظائف، من غير تكرار لو أكتر من وظيفة بتستخدم نفس البند). */
+        let ALL_RATING_CATEGORIES = [...RATING_CATEGORIES];
 
         /* بترجع معايير التقييم المناسبة لموظف معيّن حسب وظيفته. تقبل إما
            empId (نص) أو roster object فيه role مباشرة. */
@@ -2443,6 +2506,62 @@
                 role = empIdOrRoster.role;
             }
             return ROLE_RATING_CATEGORIES[role] || RATING_CATEGORIES;
+        }
+
+        /* ============================================================
+           تخصيص الوظائف ومعايير التقييم (Dynamic Customization)
+           المصدر الحقيقي الوحيد لكل الوظائف ومعايير تقييمها بقى
+           state.jobRoles: [{key, label, dept:'kitchen'|'hall', hidden, criteria:[{key,label}]}]
+           بيتخزن ويتزامن سحابيًا زي أي جزء تاني من البيانات. أول مرة لأي
+           حساب (أو لو الحقل فاضي لأي سبب) بيتبني تلقائيًا من القيم
+           الافتراضية القديمة فوق، عشان محدش يخسر وظيفة أو معيار كان
+           شغال بيه بالفعل قبل الميزة دي.
+           ============================================================ */
+        function migrateJobRolesIfNeeded(){
+            if(state.jobRoles && state.jobRoles.length) return false;
+            state.jobRoles = Object.keys(DEFAULT_ROLE_LABELS).map(key=>({
+                key,
+                label: DEFAULT_ROLE_LABELS[key],
+                dept: DEFAULT_HALL_ROLE_KEYS.includes(key) ? 'hall' : 'kitchen',
+                hidden: false,
+                criteria: (DEFAULT_ROLE_RATING_CATEGORIES[key] || RATING_CATEGORIES).map(c=>({key:c.key, label:c.label}))
+            }));
+            return true;
+        }
+        /* بتعيد بناء ROLE_LABELS / HALL_ROLES / ROLE_RATING_CATEGORIES /
+           ALL_RATING_CATEGORIES من state.jobRoles — بتتنادى بعد أي تحميل
+           أو تحديث سحابي أو تعديل من لوحة التخصيص، عشان باقي الكود (اللي
+           بيستخدم المتغيرات دي بشكل مباشر) يفضل شايف أحدث نسخة دايمًا. */
+        function rebuildJobDerivedData(){
+            ROLE_LABELS = {};
+            HALL_ROLES = [];
+            ROLE_RATING_CATEGORIES = {};
+            const seenCatKeys = new Set(RATING_CATEGORIES.map(c=>c.key));
+            const merged = [...RATING_CATEGORIES];
+            (state.jobRoles||[]).forEach(j=>{
+                ROLE_LABELS[j.key] = j.label;
+                if(j.dept==='hall') HALL_ROLES.push(j.key);
+                const crit = (j.criteria && j.criteria.length) ? j.criteria : RATING_CATEGORIES;
+                ROLE_RATING_CATEGORIES[j.key] = crit;
+                crit.forEach(c=>{
+                    if(!seenCatKeys.has(c.key)){ seenCatKeys.add(c.key); merged.push(c); }
+                });
+            });
+            ALL_RATING_CATEGORIES = merged;
+        }
+        function jobRoleKeyGen(){ return 'job_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+        function criterionKeyGen(){ return 'c_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+        function currentJobsForDept(dept){ return (state.jobRoles||[]).filter(j=>j.dept===dept); }
+        /* بتبني <option> ديناميكيين لأي select بيختار وظيفة — بتستبعد
+           الوظائف "المخفية" إلا لو هي نفسها القيمة المختارة حاليًا (عشان
+           موظف قديم بوظيفة اتخفت من بعده يفضل شايف وظيفته صح). */
+        function jobRoleOptionsHTML(selectedKey){
+            const groups = [['kitchen','المطبخ / الإدارة'], ['hall','الصالة']];
+            return groups.map(([dept,label])=>{
+                const jobs = currentJobsForDept(dept).filter(j=>!j.hidden || j.key===selectedKey);
+                if(!jobs.length) return '';
+                return `<optgroup label="${label}">${jobs.map(j=>`<option value="${j.key}" ${j.key===selectedKey?'selected':''}>${j.label}</option>`).join('')}</optgroup>`;
+            }).join('');
         }
 
         function makeEmptyBreak(){ return {start:'', end:'', running:false, ended:false}; }
@@ -3399,6 +3518,13 @@
                     loadState();
                 }
 
+                /* لازم تتنادى في كل مرة (مش أول مرة بس) عشان لو جهاز تاني
+                   عدّل الوظائف/معايير التقييم، الجهاز ده يعكس التعديل فورًا
+                   في ROLE_LABELS/HALL_ROLES/ROLE_RATING_CATEGORIES. */
+                const jobsMigrated = migrateJobRolesIfNeeded();
+                rebuildJobDerivedData();
+                if(jobsMigrated) saveState();
+
                 if(firstCloudCheck){
                     firstCloudCheck = false;
                     setInterval(render, 30000);
@@ -3423,6 +3549,8 @@
                 if(firstCloudCheck){
                     firstCloudCheck = false;
                     loadState();
+                    migrateJobRolesIfNeeded();
+                    rebuildJobDerivedData();
                     ensureDay(state.currentDate);
                     document.getElementById('datePicker').value = state.currentDate;
                     updateDateLabel();
@@ -3462,6 +3590,7 @@
             state.lateGraceMinutes = (data.lateGraceMinutes===undefined || data.lateGraceMinutes===null) ? 20 : Number(data.lateGraceMinutes);
             state.timeEditLog = data.timeEditLog || [];
             state.rolePermOverrides = data.rolePermOverrides || {};
+            state.jobRoles = data.jobRoles || [];
             const needsSectionSeed = seedDefaultTaskSectionsIfEmpty();
             if(healLegacyBreaksData() || needsSectionSeed) saveState();
             if(currentUser){
@@ -3595,6 +3724,7 @@
                 reader.readAsDataURL(file);
             });
             document.getElementById('settingsBtn').addEventListener('click', ()=>{ if(!currentUser) return; renderSettingsModal(); openModal('settingsModal'); });
+            document.getElementById('gmDashboardBtn').addEventListener('click', ()=>{ if(!currentUser) return; renderGMDashboard(); openModal('gmDashboardModal'); });
             document.getElementById('onlineUsersBtn').addEventListener('click', ()=>{ renderAccountModal(); openModal('accountModal'); });
             document.getElementById('darkModeBtn').addEventListener('click', toggleDarkMode);
             document.getElementById('calendarBtn').addEventListener('click', ()=>openModal('dateModal'));
@@ -3649,7 +3779,7 @@
             });
             document.getElementById('fabAdd').addEventListener('click', ()=>{
                 document.getElementById('newEmpName').value='';
-                document.getElementById('newEmpRole').value='supervisor';
+                document.getElementById('newEmpRole').innerHTML = jobRoleOptionsHTML('supervisor');
                 document.getElementById('newEmpShift').value='open';
                 document.getElementById('newEmpPhone').value='';
                 document.getElementById('newEmpHireDate').value='';
@@ -3778,6 +3908,161 @@
             return 0;
         }
 
+        /* ============================================================
+           لوحة المدير العام (GM Dashboard) — شاشة ملخّص سريعة للحساب غير
+           المقيّد بقسم بس: كروت (حاضرين/تقييم مطبخ/تقييم صالة/تنبيهات)،
+           تبديل مطبخ↔صالة، أفضل الموظفين، وتغذية لحظية للأنشطة.
+           ============================================================ */
+        let gmDashboardTab = 'kitchen';
+
+        function gmAvgRatingForGroup(day, wantHall){
+            let sum=0, count=0;
+            day.forEach(e=>{
+                const r = state.roster.find(x=>x.id===e.id);
+                if(!r || HALL_ROLES.includes(r.role)!==wantHall) return;
+                const vals = ratingCategoriesForEmp(e.id).map(c=>e.ratings[c.key]||0).filter(v=>v>0);
+                if(vals.length){ sum += vals.reduce((a,b)=>a+b,0)/vals.length; count++; }
+            });
+            return count ? (sum/count).toFixed(1) : '—';
+        }
+
+        function gmTopPerformers(day, wantHall, limit){
+            const list = [];
+            day.forEach(e=>{
+                const r = state.roster.find(x=>x.id===e.id);
+                if(!r || HALL_ROLES.includes(r.role)!==wantHall) return;
+                const vals = ratingCategoriesForEmp(e.id).map(c=>e.ratings[c.key]||0).filter(v=>v>0);
+                if(!vals.length) return;
+                const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
+                list.push({name:getEmpName(e.id), role:ROLE_LABELS[r.role]||r.role||'—', avg});
+            });
+            return list.sort((a,b)=>b.avg-a.avg).slice(0, limit);
+        }
+
+        function gmActivityFeed(date, limit){
+            const day = dayList(date);
+            const events = [];
+            day.forEach(e=>{
+                const name = getEmpName(e.id);
+                if(e.checkInTime) events.push({time:e.checkInTime, icon:'🟢', text:`${name} حضر الشيفت`});
+                if(e.checkOutTime) events.push({time:e.checkOutTime, icon:'🔴', text:`${name} أنهى الشيفت`});
+                (e.breaks||[]).forEach(b=>{
+                    if(b.start) events.push({time:b.start, icon:'☕', text:`${name} بدأ بريك`});
+                    if(b.end) events.push({time:b.end, icon:'↩️', text:`${name} رجع من البريك`});
+                });
+            });
+            (state.cleaningTasks[date]||[]).forEach(c=>{
+                events.push({time:c.doneAt, icon: c.isLate?'⚠️':'🧹', text:`${getEmpName(c.doneBy)} نفّذ "${c.taskName}"${c.isLate?' (متأخر)':''}`});
+            });
+            return events.filter(e=>e.time).sort((a,b)=> b.time.localeCompare(a.time)).slice(0, limit);
+        }
+
+        function renderGMDashboard(){
+            const day = dayList(state.currentDate);
+            const activeStaff = day.filter(e=>e.status==='present').length;
+            const kitchenRating = gmAvgRatingForGroup(day, false);
+            const floorRating = gmAvgRatingForGroup(day, true);
+            const alertsCount = day.filter(e=>hasPenalty(e)).length;
+            const tab = gmDashboardTab;
+            const topList = gmTopPerformers(day, tab==='hall', 5);
+            const feed = gmActivityFeed(state.currentDate, 15);
+
+            document.getElementById('gmDashboardModalBody').innerHTML = `
+                <h3>🎛 لوحة المدير العام
+                    <button class="mini-icon-btn" id="gmQuickSettingsBtn" title="إعدادات التخصيص" style="margin-right:6px;">⚙️</button>
+                    <button class="modal-close" data-close="gmDashboardModal">✕</button>
+                </h3>
+                <div style="display:flex;gap:8px;margin-bottom:8px;">
+                    <div class="rt-stat-box"><div class="v">${activeStaff}</div><div class="l">👥 الحاضرين الآن</div></div>
+                    <div class="rt-stat-box"><div class="v">${kitchenRating}</div><div class="l">🍳 تقييم المطبخ</div></div>
+                </div>
+                <div style="display:flex;gap:8px;margin-bottom:16px;">
+                    <div class="rt-stat-box"><div class="v">${floorRating}</div><div class="l">🍽️ تقييم الصالة</div></div>
+                    <div class="rt-stat-box" style="${alertsCount>0?'border-color:var(--absent);':''}"><div class="v" style="${alertsCount>0?'color:var(--absent);':''}">${alertsCount}</div><div class="l">⚠️ تنبيهات عاجلة</div></div>
+                </div>
+
+                <div style="display:flex;gap:8px;margin-bottom:14px;">
+                    <button type="button" id="gmTabKitchen" class="btn ${tab==='kitchen'?'btn-primary':'btn-cancel'}" style="width:100%;">🍳 نظرة المطبخ</button>
+                    <button type="button" id="gmTabHall" class="btn ${tab==='hall'?'btn-primary':'btn-cancel'}" style="width:100%;">🍽️ نظرة الصالة</button>
+                </div>
+
+                <div style="font-size:13px;font-weight:900;margin-bottom:8px;">🏆 أفضل الموظفين (${tab==='hall'?'الصالة':'المطبخ'})</div>
+                <div style="background:var(--card);border-radius:14px;padding:2px 12px;margin-bottom:16px;">
+                    ${topList.length ? topList.map((t,i)=>`
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;${i<topList.length-1?'border-bottom:1px solid var(--border);':''}">
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <span style="font-size:13px;font-weight:900;color:var(--muted);width:16px;">${i+1}</span>
+                                <div><div style="font-size:12.5px;font-weight:800;">${escapeHtml(t.name)}</div><div style="font-size:10.5px;color:var(--muted);font-weight:700;">${escapeHtml(t.role)}</div></div>
+                            </div>
+                            <div style="font-size:13px;font-weight:900;color:#F59E0B;">⭐ ${t.avg.toFixed(1)}</div>
+                        </div>`).join('') : `<div class="empty-state" style="padding:14px 0;font-size:12px;">لسه محدش اتقيّم في القسم ده النهاردة</div>`}
+                </div>
+
+                <div style="font-size:13px;font-weight:900;margin-bottom:8px;">🔴 التغذية اللحظية للأنشطة</div>
+                <div style="background:var(--card);border-radius:14px;padding:2px 12px;">
+                    ${feed.length ? feed.map((f,i)=>`
+                        <div style="display:flex;align-items:center;gap:8px;padding:8px 0;${i<feed.length-1?'border-bottom:1px solid var(--border);':''}">
+                            <span style="font-size:15px;">${f.icon}</span>
+                            <div style="flex:1;font-size:12px;font-weight:700;">${f.text}</div>
+                            <span style="font-size:10.5px;color:var(--muted);font-weight:800;">${f.time}</span>
+                        </div>`).join('') : `<div class="empty-state" style="padding:14px 0;font-size:12px;">مفيش أي نشاط مسجّل النهاردة لسه</div>`}
+                </div>`;
+
+            const body = document.getElementById('gmDashboardModalBody');
+            body.querySelectorAll('[data-close]').forEach(b=> b.addEventListener('click', ()=> closeModal('gmDashboardModal')));
+            body.querySelector('#gmTabKitchen').addEventListener('click', ()=>{ gmDashboardTab='kitchen'; renderGMDashboard(); });
+            body.querySelector('#gmTabHall').addEventListener('click', ()=>{ gmDashboardTab='hall'; renderGMDashboard(); });
+            body.querySelector('#gmQuickSettingsBtn').addEventListener('click', ()=>{
+                renderGMQuickActionsModal();
+                openModal('gmQuickActionsModal');
+            });
+        }
+
+        /* شاشة صغيرة سريعة بتفتح بزرار الترس ⚙️ فوق لوحة المدير العام —
+           وصول مباشر بضغطة واحدة للوحة تخصيص الوظائف والبنود وأهم
+           التقارير، بدل ما المدير يدخل الإعدادات العامة ويدوّر جواها. */
+        function renderGMQuickActionsModal(){
+            const p = perms();
+            const html = `
+            <h3>⚙️ وصول سريع <button class="modal-close" data-close="gmQuickActionsModal">✕</button></h3>
+            <button class="btn btn-cancel" id="gmQaJobCustom" style="width:100%;">🧩 تخصيص الوظائف والتقييمات</button>
+            ${p.canChangeSettings ? `<button class="btn btn-cancel" id="gmQaAttendanceReport" style="width:100%;">📋 تقرير الحضور والغياب</button>
+            <button class="btn btn-cancel" id="gmQaPeriodReport" style="width:100%;">📊 تقرير أسبوعي / شهري (CSV)</button>` : ''}
+            <button class="btn btn-cancel" id="gmQaAllSettings" style="width:100%;">كل الإعدادات ↩</button>`;
+            const body = document.getElementById('gmQuickActionsModalBody');
+            body.innerHTML = html;
+            body.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click', ()=>closeModal('gmQuickActionsModal')));
+            document.getElementById('gmQaJobCustom').addEventListener('click', ()=>{
+                closeModal('gmQuickActionsModal');
+                closeModal('gmDashboardModal');
+                jobCustomView = 'list';
+                jobCustomEditingKey = null;
+                renderJobCustomModal();
+                openModal('jobCustomModal');
+            });
+            if(p.canChangeSettings){
+                document.getElementById('gmQaAttendanceReport').addEventListener('click', ()=>{
+                    closeModal('gmQuickActionsModal');
+                    closeModal('gmDashboardModal');
+                    renderAttendanceReport();
+                    openModal('attendanceReportModal');
+                });
+                document.getElementById('gmQaPeriodReport').addEventListener('click', ()=>{
+                    closeModal('gmQuickActionsModal');
+                    closeModal('gmDashboardModal');
+                    document.getElementById('periodPreset').value = 'week';
+                    document.getElementById('periodCustomRange').style.display = 'none';
+                    openModal('periodModal');
+                });
+            }
+            document.getElementById('gmQaAllSettings').addEventListener('click', ()=>{
+                closeModal('gmQuickActionsModal');
+                closeModal('gmDashboardModal');
+                renderSettingsModal();
+                openModal('settingsModal');
+            });
+        }
+
         function renderTiles(){
             const day = dayList(state.currentDate);
             const wrap = document.getElementById('tiles');
@@ -3796,6 +4081,7 @@
                     label = state.leaveAbsentMode==='leave' ? 'إجازات فقط' : 'غياب فقط';
                 }
                 if(t.key==='break' && state.breakMode==='running'){ label = 'على استراحة الآن'; }
+                if(t.key==='cleaning' && currentUser && currentUser.department==='hall'){ label = 'نظافة الصالة'; }
                 return `
                 <div class="tile ${active?'active':''}" data-tile="${t.key}">
                     <div class="${badgeCls}">${badgeText}</div>
@@ -3856,8 +4142,6 @@
                 icon:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="10" r="2.3"/><circle cx="15.5" cy="10" r="2.3"/><path d="M6 17h12"/>'},
             {key:'grill', label:'جريل', roles:['grill'], color:'#334155', bg:'#F1F5F9',
                 icon:'<rect x="3" y="5" width="18" height="6" rx="1.5"/><rect x="5" y="13" width="14" height="6" rx="1.5"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01"/>'},
-            {key:'steward', label:'استيور', roles:['steward'], color:'#15803D', bg:'#DCFCE7',
-                icon:'<path d="M19 3l-8.5 8.5"/><path d="M10.5 11.5L6 16l-2 5 5-2 4.5-4.5"/><path d="M6 16l2 2"/>'},
             {key:'hall', label:'صالة', roles:HALL_ROLES, color:'#0F766E', bg:'#CCFBF1',
                 icon:'<path d="M8 2v6a2 2 0 002 2v0a2 2 0 002-2V2"/><path d="M10 10v12"/><path d="M16 2c-1.6 0-2.5 2-2.5 4.5S14.4 11 16 11"/><path d="M16 2v20"/>'}
         ];
@@ -4779,7 +5063,7 @@
                 <div>
                     <span class="field-label">الوظيفة</span>
                     <select data-roster-field="role">
-                        ${Object.entries(ROLE_LABELS).map(([k,l])=>`<option value="${k}" ${(roster.role||'supervisor')===k?'selected':''}>${l}</option>`).join('')}
+                        ${jobRoleOptionsHTML(roster.role||'supervisor')}
                     </select>
                     <span id="editManagerWarning" style="display:none;font-size:11px;color:var(--absent);font-weight:800;margin-top:4px;">⚠ يوجد مدير آخر بالفعل. اختيار هذه الوظيفة سيُلغي دوره.</span>
                 </div>
@@ -5722,6 +6006,212 @@
         }
 
         /* ============================================================
+           لوحة تخصيص الوظائف ومعايير التقييم (Dynamic Customization)
+           شاشتين جوه نفس المودال: "list" (الوظائف مجمّعة بالقسم) و
+           "criteria" (بنود تقييم وظيفة واحدة بعد الضغط عليها).
+           ============================================================ */
+        function renderJobCustomModal(){
+            if(!currentUser){ closeModal('jobCustomModal'); return; }
+            const body = document.getElementById('jobCustomModalBody');
+            if(jobCustomView === 'criteria' && jobCustomEditingKey){
+                renderJobCriteriaView(body);
+            } else {
+                renderJobListView(body);
+            }
+        }
+
+        function renderJobListView(body){
+            const deptSection = (dept, deptLabel)=>{
+                const jobs = currentJobsForDept(dept);
+                const cardsHTML = jobs.map(j=>{
+                    const empCount = state.roster.filter(r=>r.role===j.key).length;
+                    return `
+                    <div class="role-perm-card" style="${j.hidden?'opacity:.55;':''}">
+                        <div class="role-perm-head">
+                            <span style="font-weight:800;font-size:13px;">${j.label}${j.hidden?' <span style="font-size:10.5px;color:var(--muted);font-weight:700;">(مخفية)</span>':''}</span>
+                            <span class="clean-row-meta">${empCount} موظف</span>
+                        </div>
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+                            <button class="btn btn-cancel" style="flex:1;min-width:90px;padding:8px;font-size:12px;" data-criteria-job="${j.key}">📋 بنود التقييم (${(j.criteria||[]).length})</button>
+                            <button class="clean-icon-btn" data-rename-job="${j.key}" title="تعديل الاسم">✏️</button>
+                            <button class="clean-icon-btn" data-toggle-job="${j.key}" title="${j.hidden?'إظهار':'إخفاء'}">${j.hidden?'👁':'🙈'}</button>
+                            <button class="clean-icon-btn" data-delete-job="${j.key}" title="حذف">🗑</button>
+                        </div>
+                    </div>`;
+                }).join('');
+                return `
+                <div style="margin-bottom:14px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                        <span class="field-label" style="margin:0;">${deptLabel}</span>
+                        <button class="btn btn-cancel" style="padding:6px 12px;font-size:12px;" data-add-job="${dept}">+ إضافة وظيفة</button>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:10px;">${cardsHTML || '<div class="clean-row-meta">لا توجد وظائف في هذا القسم</div>'}</div>
+                </div>`;
+            };
+
+            const html = `
+            <h3>🧩 تخصيص الوظائف والتقييمات <button class="modal-close" data-close="jobCustomModal">✕</button></h3>
+            <div class="perm-note" style="margin-bottom:10px;">
+                من هنا تقدر تضيف وظيفة جديدة، تعدّل مسمى أي وظيفة، تخفي أو تحذف وظيفة مش مستخدمة، وتتحكم في بنود التقييم الخاصة بكل وظيفة — كل ده من غير أي تعديل في الكود. "إخفاء" بيمنع اختيار الوظيفة للموظفين الجدد بس بيسيب الموظفين الحاليين زي ما هما؛ "حذف" مينفعش إلا لو مفيش موظف مسجّل بالوظيفة دي حاليًا.
+            </div>
+            ${deptSection('kitchen','🍳 المطبخ / الإدارة')}
+            ${deptSection('hall','🍽 الصالة')}
+            <button class="btn btn-primary" data-close="jobCustomModal" style="width:100%;margin-top:6px;">تم</button>`;
+
+            body.innerHTML = html;
+            body.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click', ()=>closeModal('jobCustomModal')));
+
+            body.querySelectorAll('[data-criteria-job]').forEach(btn=>{
+                btn.addEventListener('click', ()=>{
+                    jobCustomEditingKey = btn.dataset.criteriaJob;
+                    jobCustomView = 'criteria';
+                    renderJobCustomModal();
+                });
+            });
+            body.querySelectorAll('[data-rename-job]').forEach(btn=>{
+                btn.addEventListener('click', ()=>{
+                    const job = state.jobRoles.find(j=>j.key===btn.dataset.renameJob);
+                    if(!job) return;
+                    const newLabel = prompt('اسم الوظيفة الجديد:', job.label);
+                    if(newLabel===null) return;
+                    const trimmed = newLabel.trim();
+                    if(!trimmed){ alert('لازم تكتب اسم.'); return; }
+                    job.label = trimmed;
+                    rebuildJobDerivedData();
+                    saveState();
+                    renderJobCustomModal();
+                });
+            });
+            body.querySelectorAll('[data-toggle-job]').forEach(btn=>{
+                btn.addEventListener('click', ()=>{
+                    const job = state.jobRoles.find(j=>j.key===btn.dataset.toggleJob);
+                    if(!job) return;
+                    job.hidden = !job.hidden;
+                    saveState();
+                    renderJobCustomModal();
+                });
+            });
+            body.querySelectorAll('[data-delete-job]').forEach(btn=>{
+                btn.addEventListener('click', ()=>{
+                    const key = btn.dataset.deleteJob;
+                    const job = state.jobRoles.find(j=>j.key===key);
+                    if(!job) return;
+                    const empCount = state.roster.filter(r=>r.role===key).length;
+                    if(empCount>0){
+                        alert(`في ${empCount} موظف مسجّل بوظيفة "${job.label}" حاليًا — لازم تنقلهم لوظيفة تانية الأول، أو تستخدم "إخفاء" بدل الحذف.`);
+                        return;
+                    }
+                    if(!confirm(`حذف وظيفة "${job.label}" نهائيًا؟`)) return;
+                    state.jobRoles = state.jobRoles.filter(j=>j.key!==key);
+                    rebuildJobDerivedData();
+                    saveState();
+                    renderJobCustomModal();
+                });
+            });
+            body.querySelectorAll('[data-add-job]').forEach(btn=>{
+                btn.addEventListener('click', ()=>{
+                    const dept = btn.dataset.addJob;
+                    const label = prompt('اسم الوظيفة الجديدة:');
+                    if(label===null) return;
+                    const trimmed = label.trim();
+                    if(!trimmed){ alert('لازم تكتب اسم.'); return; }
+                    const newJob = {
+                        key: jobRoleKeyGen(),
+                        label: trimmed,
+                        dept,
+                        hidden: false,
+                        criteria: RATING_CATEGORIES.map(c=>({key:c.key, label:c.label}))
+                    };
+                    if(!state.jobRoles) state.jobRoles = [];
+                    state.jobRoles.push(newJob);
+                    rebuildJobDerivedData();
+                    saveState();
+                    renderJobCustomModal();
+                });
+            });
+        }
+
+        function renderJobCriteriaView(body){
+            const job = state.jobRoles.find(j=>j.key===jobCustomEditingKey);
+            if(!job){ jobCustomView='list'; renderJobListView(body); return; }
+            if(!job.criteria) job.criteria = [];
+            const rowsHTML = job.criteria.map((c,i)=>`
+                <div class="clean-log-row" style="align-items:center;">
+                    <span style="flex:1;">${c.label}</span>
+                    <div style="display:flex;gap:4px;flex-shrink:0;">
+                        <button class="clean-icon-btn" data-move-crit="${i}" data-dir="up" ${i===0?'disabled style="opacity:.3;"':''} title="لأعلى">↑</button>
+                        <button class="clean-icon-btn" data-move-crit="${i}" data-dir="down" ${i===job.criteria.length-1?'disabled style="opacity:.3;"':''} title="لأسفل">↓</button>
+                        <button class="clean-icon-btn" data-rename-crit="${i}" title="تعديل">✏️</button>
+                        <button class="clean-icon-btn" data-delete-crit="${i}" title="حذف">🗑</button>
+                    </div>
+                </div>`).join('');
+
+            const html = `
+            <h3>📋 بنود تقييم: ${job.label} <button class="modal-close" data-close="jobCustomModal">✕</button></h3>
+            <button class="btn btn-cancel" id="jobCriteriaBackBtn" style="width:100%;margin-bottom:10px;">→ رجوع لكل الوظائف</button>
+            <div class="perm-note" style="margin-bottom:10px;">
+                البنود دي هي اللي بتظهر لموظفي وظيفة "${job.label}" وقت التقييم اليومي. لازم يفضل بند واحد على الأقل.
+            </div>
+            <div style="display:flex;flex-direction:column;">${rowsHTML || '<div class="clean-row-meta">مفيش بنود تقييم لسه</div>'}</div>
+            <button class="btn btn-primary" id="addCriterionBtn" style="width:100%;margin-top:12px;">+ إضافة بند تقييم</button>
+            <button class="btn btn-cancel" data-close="jobCustomModal" style="width:100%;margin-top:8px;">تم</button>`;
+
+            body.innerHTML = html;
+            body.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click', ()=>closeModal('jobCustomModal')));
+            document.getElementById('jobCriteriaBackBtn').addEventListener('click', ()=>{
+                jobCustomView = 'list';
+                jobCustomEditingKey = null;
+                renderJobCustomModal();
+            });
+            document.getElementById('addCriterionBtn').addEventListener('click', ()=>{
+                const label = prompt('اسم بند التقييم الجديد (كلمة أو كلمتين):');
+                if(label===null) return;
+                const trimmed = label.trim();
+                if(!trimmed){ alert('لازم تكتب اسم.'); return; }
+                job.criteria.push({key: criterionKeyGen(), label: trimmed});
+                rebuildJobDerivedData();
+                saveState();
+                renderJobCustomModal();
+            });
+            body.querySelectorAll('[data-rename-crit]').forEach(btn=>{
+                btn.addEventListener('click', ()=>{
+                    const idx = parseInt(btn.dataset.renameCrit);
+                    const newLabel = prompt('اسم البند الجديد:', job.criteria[idx].label);
+                    if(newLabel===null) return;
+                    const trimmed = newLabel.trim();
+                    if(!trimmed){ alert('لازم تكتب اسم.'); return; }
+                    job.criteria[idx].label = trimmed;
+                    rebuildJobDerivedData();
+                    saveState();
+                    renderJobCustomModal();
+                });
+            });
+            body.querySelectorAll('[data-delete-crit]').forEach(btn=>{
+                btn.addEventListener('click', ()=>{
+                    const idx = parseInt(btn.dataset.deleteCrit);
+                    if(job.criteria.length<=1){ alert('لازم يفضل بند تقييم واحد على الأقل.'); return; }
+                    if(!confirm(`حذف بند "${job.criteria[idx].label}"؟ (التقييمات القديمة المسجّلة عليه هتفضل محفوظة بس مش هتتعرض تاني)`)) return;
+                    job.criteria.splice(idx,1);
+                    rebuildJobDerivedData();
+                    saveState();
+                    renderJobCustomModal();
+                });
+            });
+            body.querySelectorAll('[data-move-crit]').forEach(btn=>{
+                btn.addEventListener('click', ()=>{
+                    const idx = parseInt(btn.dataset.moveCrit);
+                    const dir = btn.dataset.dir;
+                    const swapWith = dir==='up' ? idx-1 : idx+1;
+                    if(swapWith<0 || swapWith>=job.criteria.length) return;
+                    [job.criteria[idx], job.criteria[swapWith]] = [job.criteria[swapWith], job.criteria[idx]];
+                    rebuildJobDerivedData();
+                    saveState();
+                    renderJobCustomModal();
+                });
+            });
+        }
+
+        /* ============================================================
            صلاحيات خاصة بحساب واحد بعينه — بتغلب صلاحيات الدور، وبتأثر
            على الحساب ده بس مش باقي الحسابات اللي بنفس الدور.
            ============================================================ */
@@ -6302,7 +6792,7 @@
             }).join('') : `<div class="empty-state">لسه مفيش أي مهمة اتسجلت النهاردة</div>`;
 
             document.getElementById('cleaningModalBody').innerHTML = `
-            <h3>نظافة المطبخ (${state.currentDate}) <button class="modal-close" data-close="cleaningModal">✕</button></h3>
+            <h3>${(currentUser && currentUser.department==='hall') ? 'نظافة الصالة' : 'نظافة المطبخ'} (${state.currentDate}) <button class="modal-close" data-close="cleaningModal">✕</button></h3>
             <div class="bonus-hint ${log.length?'on':'off'}">
                 ${log.length ? `تم تسجيل ${log.length} تنفيذ النهاردة` : 'لسه مفيش تنفيذ اتسجل النهاردة'}
             </div>
@@ -6724,6 +7214,7 @@
                 <div class="divider"></div>
                 <button class="btn btn-cancel" id="manageAccountsBtn" style="width:100%;">👥 إدارة المستخدمين والصلاحيات</button>
                 ${currentUser && currentUser.level==='manager' ? `<button class="btn btn-cancel" id="rolePermissionsBtn" style="width:100%;">🔐 صلاحيات الأدوار</button>` : ''}
+                <button class="btn btn-cancel" id="jobCustomBtn" style="width:100%;">🧩 تخصيص الوظائف والتقييمات</button>
                 <button class="btn btn-cancel" id="loginLogBtn" style="width:100%;">🕒 سجل الدخول</button>
                 <div class="divider"></div>
                 <span class="field-label">🔔 إشعارات تليجرام</span>
@@ -6734,7 +7225,7 @@
                     <label class="notif-toggle-row"><input type="checkbox" id="notifAttendance" ${state.notifSettings.attendance?'checked':''}> الحضور والغياب</label>
                     <label class="notif-toggle-row"><input type="checkbox" id="notifMoney" ${state.notifSettings.money?'checked':''}> الخصومات والحوافز</label>
                     <label class="notif-toggle-row"><input type="checkbox" id="notifBreakAlert" ${state.notifSettings.breakAlert?'checked':''}> تنبيه البريك (لما يفضل على الموظف 5 دقايق بس على حد البريك المسموح بيه — 60 د للصالة، 90 د لغيرها)</label>
-                    <label class="notif-toggle-row"><input type="checkbox" id="notifCleaning" ${state.notifSettings.cleaning?'checked':''}> نظافة المطبخ</label>
+                    <label class="notif-toggle-row"><input type="checkbox" id="notifCleaning" ${state.notifSettings.cleaning?'checked':''}> ${(currentUser && currentUser.department==='hall') ? 'نظافة الصالة' : 'نظافة المطبخ'}</label>
                     <label class="notif-toggle-row"><input type="checkbox" id="notifMaintenance" ${state.notifSettings.maintenance?'checked':''}> الصيانة</label>
                     <label class="notif-toggle-row"><input type="checkbox" id="notifReminders" ${state.notifSettings.reminders?'checked':''}> التذكيرات</label>
                     <label class="notif-toggle-row"><input type="checkbox" id="notifDailySummary" ${state.notifSettings.dailySummary?'checked':''}> ملخصات الورديات اليومية (8م / 2ص)</label>
@@ -6862,6 +7353,13 @@
                     closeModal('settingsModal');
                     renderLoginLogModal();
                     openModal('loginLogModal');
+                });
+                document.getElementById('jobCustomBtn').addEventListener('click', ()=>{
+                    closeModal('settingsModal');
+                    jobCustomView = 'list';
+                    jobCustomEditingKey = null;
+                    renderJobCustomModal();
+                    openModal('jobCustomModal');
                 });
                 ['notifAttendance','notifMoney','notifBreakAlert','notifCleaning','notifMaintenance','notifReminders','notifDailySummary','notifEmployeeOnline','notifSupervisorEdit','notifOpenShiftTasks','notifLastShiftTasks'].forEach((id, i)=>{
                     const keys = ['attendance','money','breakAlert','cleaning','maintenance','reminders','dailySummary','employeeOnlineReport','supervisorEdit','openShiftTasks','lastShiftTasks'];
@@ -7391,6 +7889,17 @@
         }
 
         init();
+    </script>
+    <script>
+        /* تسجيل الـ Service Worker عشان التطبيق يبقى قابل للتثبيت (PWA)
+           ويشتغل بسرعة حتى لو النت ضعيف — بدون أي علاقة ببيانات المطعم
+           (دي كلها في Firebase). لو حصل خطأ هنا التطبيق بيفضل شغال عادي
+           عن طريق الشبكة زي ما كان قبل كده تمامًا. */
+        if('serviceWorker' in navigator){
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW register failed', err));
+            });
+        }
     </script>
 </body>
 </html>
